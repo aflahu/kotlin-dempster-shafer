@@ -3,8 +3,8 @@ import Model.MassFunction
 fun main(args: Array<String>) {
     val gejala1 = MassFunction(listOf("A", "N","D"), 0.6)
     val gejala2 = MassFunction(listOf("N","D", "P"), 0.7)
-    val gejala3 = MassFunction(listOf("A"), 0.9)
-    val mKombinasi = kombinasiDuaGejala(gejala1, gejala2)
+//    val gejala3 = MassFunction(listOf("A"), 0.9)
+    val mKombinasi = kombinasiDuaGejala(mutableListOf(gejala1), gejala2)
 
     for (m in mKombinasi) {
         println("daftar penyakit: ${m.daftarPenyakit}, nilai: ${m.nilai}")
@@ -12,7 +12,7 @@ fun main(args: Array<String>) {
 }
 
 private fun kombinasiDuaGejala(
-    massFunctionGejalaSebelumnya: MassFunction,
+    massFunctionGejalaSebelumnya: MutableList<MassFunction>,
     massFunctionGejalaBerikutnya: MassFunction
 ): List<MassFunction> {
 
