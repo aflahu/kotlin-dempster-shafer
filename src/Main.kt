@@ -127,12 +127,7 @@ fun perhitunganFungsiKombinasi(semuaMassFunctionBaru: MutableList<MassFunction>)
 
     // for in kelompok daftarMass function, masukkan kedalam rumus
     for (daftarMassFunction in kelompokDaftarMassFunction) {
-        if (daftarMassFunction.size == 1) {
-            hasilPerhitunganFungsiKombinasi.add(daftarMassFunction[0])
-        } else {
-
-            hasilPerhitunganFungsiKombinasi.add(rumusAturanKombinasi(daftarMassFunction, totalNilaiHimpunanKosong))
-        }
+        hasilPerhitunganFungsiKombinasi.add(rumusAturanKombinasi(daftarMassFunction, totalNilaiHimpunanKosong))
     }
 
     return hasilPerhitunganFungsiKombinasi
