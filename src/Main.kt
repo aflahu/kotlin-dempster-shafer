@@ -87,7 +87,7 @@ private fun himpunanSama(
 
 
     // perhitungan fungsi kombinasi
-//    semuaMassFunctionBaru = perhitunganFungsiKombinasi(semuaMassFunctionBaru)
+    semuaMassFunctionBaru = perhitunganFungsiKombinasi(semuaMassFunctionBaru)
     // hapus himpunan kosong
     semuaMassFunctionBaru =
         semuaMassFunctionBaru.filter { !it.daftarPenyakit.contains(Constant.HIMPUNAN_KOSONG) } as MutableList<MassFunction>
@@ -98,13 +98,17 @@ private fun himpunanSama(
 
 fun perhitunganFungsiKombinasi(semuaMassFunctionBaru: MutableList<MassFunction>): MutableList<MassFunction> {
     var hasilPerhitunganFungsiKombinasi: MutableList<MassFunction> = mutableListOf()
+    var daftarYangSudah: MutableList<List<String>> = mutableListOf()
 
     // fungsi ini mengkelompokkan yang sama atau sendiri
     val kelompokDaftarMassFunction: MutableList<List<MassFunction>> = mutableListOf()
     var saringan: List<MassFunction> = listOf()
     for (m in semuaMassFunctionBaru) {
         saringan = semuaMassFunctionBaru.filter { it.daftarPenyakit.equals(m.daftarPenyakit) }
-        if (saringan.size != 0) {
+        val cekSudahAda = daftarYangSudah.filter { it.containsAll(m.daftarPenyakit) }
+
+        if (saringan.size != 0 && cekSudahAda.size == 0) {
+            daftarYangSudah.add(m.daftarPenyakit)
             kelompokDaftarMassFunction.add(
                 saringan
             )
@@ -115,7 +119,7 @@ fun perhitunganFungsiKombinasi(semuaMassFunctionBaru: MutableList<MassFunction>)
     var totalNilaiHimpunanKosong: Double = 0.0
     val daftarHimpunanKosong: List<MassFunction> =
         semuaMassFunctionBaru.filter { it.daftarPenyakit.contains(Constant.HIMPUNAN_KOSONG) }
-    if (daftarHimpunanKosong.size >= 0) {
+    if (daftarHimpunanKosong.size > 0) {
         for (m in daftarHimpunanKosong) {
             totalNilaiHimpunanKosong = totalNilaiHimpunanKosong + m.nilai
         }
