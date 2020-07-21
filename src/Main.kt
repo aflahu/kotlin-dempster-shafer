@@ -1,17 +1,26 @@
 import Model.MassFunction
+import Model.PersentaseKemungkinan
+import java.lang.Exception
 
 fun main(args: Array<String>) {
     val gejala1 = MassFunction(listOf("A", "N", "D"), 0.6)
     val gejala2 = MassFunction(listOf("N", "D", "P"), 0.7)
     val gejala3 = MassFunction(listOf("A"), 0.9)
-    val mKombinasi = HitungPersentaseKemungkinan(listOf(gejala1, gejala2, gejala3))
+    val mKombinasi = hitungMassFunctionKombinasi(listOf(gejala1, gejala2, gejala3))
 
     for (m in mKombinasi) {
         println("daftar penyakit: ${m.daftarPenyakit}, nilai: ${m.nilai}")
     }
+
+    try {
+        val persentaseKemungkinan = hitungPersentase(mKombinasi)
+        print("jadi persentase penyakit ${persentaseKemungkinan.penyakit} adalah sebesar ${persentaseKemungkinan.persentase}%")
+    } catch (e: Exception) {
+        print("tidak dapat mencari")
+    }
 }
 
-private fun HitungPersentaseKemungkinan(
+private fun hitungMassFunctionKombinasi(
     semuaGejala: List<MassFunction>
 ): List<MassFunction> {
     var massFunctionGejalaSebelumnya: MutableList<MassFunction> = mutableListOf(semuaGejala[0])
@@ -24,11 +33,22 @@ private fun HitungPersentaseKemungkinan(
         }
     }
 
-
-
-
-
     return massFunctionGejalaSebelumnya
+}
+
+private fun hitungPersentase(mKombinasi: List<MassFunction>): PersentaseKemungkinan {
+    // filter MassFunction yang daftar penyakit 1 list saja
+    val mYangDaftarPenyakitSatuList = mKombinasi.filter { it.daftarPenyakit.size == 1 }
+
+    // cek berisi atau tidak
+    if (mYangDaftarPenyakitSatuList.size == 0) {
+        throw Exception("Tidak di temukan")
+    } else {
+        // cari nilai paling tinggi yang bukan θ
+        val mKombinasiTampaθ = mYangDaftarPenyakitSatuList.filter { it.daftarPenyakit.containsAll(listOf(Constant.TETHA)) }
+        val dapat = mYangDaftarPenyakitSatuList.maxBy { it.nilai }
+        return PersentaseKemungkinan(dapat!!.daftarPenyakit[0],dapat.nilai)
+    }
 }
 
 private fun himpunanSama(
