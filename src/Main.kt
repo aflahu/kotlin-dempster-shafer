@@ -66,35 +66,32 @@ private fun himpunanSama(
 
     // untuk kombinasi m{0} dengan m{daftar penyakit} berikutnya dan m{0} berikutnya
 
-    // untuk m{daftar penyakit} berikutnya
-    val tetha = semuaMassFunctionBaru.filter { !it.daftarPenyakit.contains(Constant.TETHA) } as MutableList<MassFunction>
+
+    val tetha = semuaMassFunctionBaru.filter { it.daftarPenyakit.contains(Constant.TETHA) } as MutableList<MassFunction>
     var nilaiMØ: Double = 0.0
-    if (tetha.size != 0) {
-        nilaiMØ = 1 - semuaMassFunctionGejalaSebelumnya.map { it.nilai }.sum()
-    } else {
-        nilaiMØ = tetha[0].nilai
-    }
-    val hasilPerkalianNilaiM0DenganMassFunctionBaru = nilaiMØ * massFunctionGejalaBerikutnya.nilai
-    semuaMassFunctionBaru.add(
-        MassFunction(
-            massFunctionGejalaBerikutnya.daftarPenyakit,
-            hasilPerkalianNilaiM0DenganMassFunctionBaru
+    if (tetha.size == 0) {
+        // untuk m{daftar penyakit} berikutnya
+        nilaiMØ = semuaMassFunctionGejalaSebelumnya[0].nilaiFof
+
+        val hasilPerkalianNilaiM0DenganMassFunctionBaru = nilaiMØ * massFunctionGejalaBerikutnya.nilai
+        semuaMassFunctionBaru.add(
+            MassFunction(
+                massFunctionGejalaBerikutnya.daftarPenyakit,
+                hasilPerkalianNilaiM0DenganMassFunctionBaru
+            )
         )
-    )
 
-    // untuk m{0} berikutnya
-
-
-    semuaMassFunctionBaru.add(MassFunction(listOf(Constant.TETHA), nilaiMØ * massFunctionGejalaBerikutnya.nilaiFof))
+        // untuk m{0} berikutnya
+        semuaMassFunctionBaru.add(MassFunction(listOf(Constant.TETHA), nilaiMØ * massFunctionGejalaBerikutnya.nilaiFof))
+    }
 
 
     // perhitungan fungsi kombinasi
-    semuaMassFunctionBaru = perhitunganFungsiKombinasi(semuaMassFunctionBaru)
+//    semuaMassFunctionBaru = perhitunganFungsiKombinasi(semuaMassFunctionBaru)
     // hapus himpunan kosong
     semuaMassFunctionBaru =
         semuaMassFunctionBaru.filter { !it.daftarPenyakit.contains(Constant.HIMPUNAN_KOSONG) } as MutableList<MassFunction>
-    // hapus 0
-//    semuaMassFunctionBaru = semuaMassFunctionBaru.filter { !it.daftarPenyakit.contains("0") } as MutableList<MassFunction>
+
 
     return semuaMassFunctionBaru
 }
