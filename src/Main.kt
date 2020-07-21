@@ -1,33 +1,40 @@
 import Model.MassFunction
 
 fun main(args: Array<String>) {
-    val gejala1 = MassFunction(listOf("A", "N","D"), 0.6)
-    val gejala2 = MassFunction(listOf("N","D", "P"), 0.7)
-//    val gejala3 = MassFunction(listOf("A"), 0.9)
-    val mKombinasi = kombinasiDuaGejala(mutableListOf(gejala1), gejala2)
+    val gejala1 = MassFunction(listOf("A", "N", "D"), 0.6)
+    val gejala2 = MassFunction(listOf("N", "D", "P"), 0.7)
+    val gejala3 = MassFunction(listOf("A"), 0.9)
+    val mKombinasi = HitungPersentaseKemungkinan(listOf(gejala1, gejala2, gejala3))
 
     for (m in mKombinasi) {
         println("daftar penyakit: ${m.daftarPenyakit}, nilai: ${m.nilai}")
     }
 }
 
-private fun kombinasiDuaGejala(
-    massFunctionGejalaSebelumnya: MutableList<MassFunction>,
-    massFunctionGejalaBerikutnya: MassFunction
+private fun HitungPersentaseKemungkinan(
+    semuaGejala: List<MassFunction>
 ): List<MassFunction> {
+    var massFunctionGejalaSebelumnya: MutableList<MassFunction> = mutableListOf(semuaGejala[0])
+    for ((index, gejalaSelanjutnya) in semuaGejala.withIndex()) {
+        if (index != 0) {
+//            massFunctionGejalaSebelumnya.add()
+            // aturan kombinasi
+            massFunctionGejalaSebelumnya =
+                himpunanSama(massFunctionGejalaSebelumnya, gejalaSelanjutnya)
+        }
+    }
 
-    // aturan kombinasi
-    val massFunctionHasilAturanKombinasi = himpunanSama(massFunctionGejalaSebelumnya, massFunctionGejalaBerikutnya)
 
 
 
-    return massFunctionHasilAturanKombinasi
+
+    return massFunctionGejalaSebelumnya
 }
 
 private fun himpunanSama(
     semuaMassFunctionGejalaSebelumnya: List<MassFunction>,
     massFunctionGejalaBerikutnya: MassFunction
-): List<MassFunction> {
+): MutableList<MassFunction> {
     var semuaMassFunctionBaru: MutableList<MassFunction> = mutableListOf()
 //    val totalNilai = 0.0
     for (massFunction in semuaMassFunctionGejalaSebelumnya) {
@@ -37,8 +44,11 @@ private fun himpunanSama(
         var massFunctionSementaraUntukMSebelumnya = MassFunction()
         var irisanDaftarPenyakit: List<String>? =
             massFunction.daftarPenyakit.filter { massFunctionGejalaBerikutnya.daftarPenyakit.contains(it) }
-        if (irisanDaftarPenyakit == null) {
+        if (irisanDaftarPenyakit!!.isEmpty() == true && !massFunction.daftarPenyakit.containsAll(listOf(Constant.TETHA))) {
             irisanDaftarPenyakit = listOf(Constant.HIMPUNAN_KOSONG)
+        }
+        if (massFunction.daftarPenyakit.containsAll(listOf(Constant.TETHA))) {
+            irisanDaftarPenyakit = massFunctionGejalaBerikutnya.daftarPenyakit
         }
 
         massFunctionSementaraUntukMSebelumnya.daftarPenyakit = irisanDaftarPenyakit
@@ -46,19 +56,25 @@ private fun himpunanSama(
         semuaMassFunctionBaru.add(massFunctionSementaraUntukMSebelumnya)
 
         // kombinasi untuk yang m{0} berikutnya
-        var massFunctionSementaraUntukM0Sebelumnya = MassFunction()
-        massFunctionSementaraUntukM0Sebelumnya.daftarPenyakit = massFunction.daftarPenyakit
-        massFunctionSementaraUntukM0Sebelumnya.nilai = massFunction.nilaiFof * massFunction.nilai
-        semuaMassFunctionBaru.add(massFunctionSementaraUntukM0Sebelumnya)
+        var massFunctionSementaraUntukMθberikutnya =
+            MassFunction(massFunction.daftarPenyakit, massFunction.nilai * massFunctionGejalaBerikutnya.nilaiFof)
+//        massFunctionSementaraUntukM0Sebelumnya.daftarPenyakit = massFunction.daftarPenyakit
+//        massFunctionSementaraUntukM0Sebelumnya.nilai = massFunction.nilaiFof * massFunctionGejalaBerikutnya.nilai
+        semuaMassFunctionBaru.add(massFunctionSementaraUntukMθberikutnya)
 
     }
 
     // untuk kombinasi m{0} dengan m{daftar penyakit} berikutnya dan m{0} berikutnya
 
     // untuk m{daftar penyakit} berikutnya
-    val nilaiM0: Double = 1 - semuaMassFunctionGejalaSebelumnya.map { it.nilai }.sum()
-//    val nilaim0 = 1 - totalNilai
-    val hasilPerkalianNilaiM0DenganMassFunctionBaru = nilaiM0 * massFunctionGejalaBerikutnya.nilai
+    val tetha = semuaMassFunctionBaru.filter { !it.daftarPenyakit.contains(Constant.TETHA) } as MutableList<MassFunction>
+    var nilaiMØ: Double = 0.0
+    if (tetha.size != 0) {
+        nilaiMØ = 1 - semuaMassFunctionGejalaSebelumnya.map { it.nilai }.sum()
+    } else {
+        nilaiMØ = tetha[0].nilai
+    }
+    val hasilPerkalianNilaiM0DenganMassFunctionBaru = nilaiMØ * massFunctionGejalaBerikutnya.nilai
     semuaMassFunctionBaru.add(
         MassFunction(
             massFunctionGejalaBerikutnya.daftarPenyakit,
@@ -67,13 +83,18 @@ private fun himpunanSama(
     )
 
     // untuk m{0} berikutnya
-    semuaMassFunctionBaru.add(MassFunction(listOf("0"), nilaiM0 * massFunctionGejalaBerikutnya.nilaiFof))
 
 
+    semuaMassFunctionBaru.add(MassFunction(listOf(Constant.TETHA), nilaiMØ * massFunctionGejalaBerikutnya.nilaiFof))
 
 
     // perhitungan fungsi kombinasi
     semuaMassFunctionBaru = perhitunganFungsiKombinasi(semuaMassFunctionBaru)
+    // hapus himpunan kosong
+    semuaMassFunctionBaru =
+        semuaMassFunctionBaru.filter { !it.daftarPenyakit.contains(Constant.HIMPUNAN_KOSONG) } as MutableList<MassFunction>
+    // hapus 0
+//    semuaMassFunctionBaru = semuaMassFunctionBaru.filter { !it.daftarPenyakit.contains("0") } as MutableList<MassFunction>
 
     return semuaMassFunctionBaru
 }
